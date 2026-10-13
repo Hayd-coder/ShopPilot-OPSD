@@ -1,5 +1,5 @@
 {
-  "project": "ShopPilot-RL",
+  "project": "ShopPilot-OPSD",
   "environment": "WebShop-small (1000 products)",
   "evaluation_scope": "fixed tasks; target ASIN overlap with trajectory corpus is allowed",
   "sft_fixed128": {

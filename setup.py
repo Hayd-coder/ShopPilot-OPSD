@@ -81,7 +81,7 @@ setup(
     version=__version__,
     package_dir={"": "."},
     packages=find_packages(where="."),
-    url="https://github.com/Hayd-coder/WebShop-Agent-RL",
+    url="https://github.com/Hayd-coder/ShopPilot-OPSD",
     license="Apache 2.0",
     author="Hayd-coder",
     description="Trajectory-supervised and reinforcement-learned WebShop agent",

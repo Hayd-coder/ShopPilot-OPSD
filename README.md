@@ -1,8 +1,8 @@
-# ShopPilot-RL：基于专家轨迹与强化学习的 Web 购物智能体
+# ShopPilot-OPSD：基于专家轨迹冷启动与 OPSD 策略自蒸馏的 Web 购物智能体决策优化
 
-ShopPilot-RL 面向 WebShop 长程网页交互任务，基于 **Qwen2.5-3B-Instruct** 构建多轮购物智能体，将商品检索、候选比较、页面浏览、规格选择和购买决策建模为连续的 `Observation → Action → Reward` 过程。
+ShopPilot-OPSD 面向 WebShop 长程网页交互任务，基于 **Qwen2.5-3B-Instruct** 构建多轮购物智能体，将商品检索、候选比较、页面浏览、规格选择和购买决策建模为连续的 `Observation → Action → Reward` 过程。
 
-项目采用“**专家轨迹行为冷启动 + LoRA 参数高效训练 + GRPO 在线策略优化**”的两阶段方案：先自主生成并校验购物轨迹，使模型掌握 WebShop 的基本操作闭环；再通过同一任务下多条 rollout 的相对奖励优化决策策略。所有关键实验均保存逐步页面、合法动作、模型响应、执行动作和环境奖励，支持完整的 bad-case 回溯。
+项目采用“**专家轨迹行为冷启动 + LoRA 参数高效训练 + GRPO 在线策略优化 + OPSD 策略自蒸馏**”的训练方案：先自主生成并校验购物轨迹，使模型掌握 WebShop 的基本操作闭环；再通过同一任务下多条 rollout 的相对奖励优化决策策略，并利用带策略经验的上下文视图对原始策略进行 Token 级自蒸馏。所有关键实验均保存逐步页面、合法动作、模型响应、执行动作和环境奖励，支持完整的 bad-case 回溯。
 
 ## 项目亮点
 
@@ -10,6 +10,7 @@ ShopPilot-RL 面向 WebShop 长程网页交互任务，基于 **Qwen2.5-3B-Instr
 - 额外构建 2,500 条搜索改写、翻页探索和候选比较课程轨迹，缓解首项偏好与无效循环。
 - 实现 **Think/Action 分段加权 SFT**：Prompt 不参与损失，`Think` Token 权重为 `0.2`，关键 `Action` Token 权重为 `1.0`。
 - 使用 LoRA 训练 Qwen2.5-3B-Instruct，并在单张 48 GB GPU 上完成 30 次 GRPO 参数更新。
+- 引入 **OPSD（On-Policy Self-Distillation）**：对同一条在线轨迹分别计算原始策略与经验增强策略的 Token 概率，通过非对称门控提供细粒度蒸馏信号。
 - 在固定 128 个 WebShop 任务上，三轮 SFT 成功率分别为 **87.50%、86.72%、92.97%**；最终达到 **119/128**，平均任务得分 **0.9462**，动作合法率 **100%**。
 - GRPO 采用 `B=8、G=8`，每次更新生成 64 条轨迹；第 10/20/30 步固定验证成功率均为 **93.75%**，并通过奖励方差、优势值、梯度范数和失败轨迹定位强化学习的有效信号与性能瓶颈。
 
@@ -56,6 +57,18 @@ Target = <think>状态可验证的短推理</think><action>下一步动作</acti
 ```
 
 奖励保持环境原生语义：成功购买记 `10`，失败记 `0`，非法动作额外惩罚 `-0.1`，不依赖额外奖励模型。
+
+### 4. OPSD 策略自蒸馏
+
+OPSD 不重新生成教师轨迹，而是在同一次 on-policy rollout 后，对 Student 已生成的 Response 进行两次 teacher-forcing 打分：
+
+```text
+原始 Prompt + Response → Student token log-prob
+经验增强 Prompt + 同一 Response → Teacher token log-prob（停止梯度）
+两者差值 → 非对称 Gate → Token 级蒸馏损失
+```
+
+带经验上下文的分支只提供监督信号，更新仍作用于原始策略分支，从而在保留 GRPO 轨迹级优化目标的同时，对关键搜索、点击和规格选择 Token 提供更细粒度的学习信号。
 
 ## 核心数据流
 
