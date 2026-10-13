@@ -9,7 +9,7 @@
 - [x] 排除模型权重、checkpoint、缓存和本机配置
 - [x] 完成凭据、大文件、JSON、Shell 与 Python 检查
 - [x] 初始化 Git 并创建本地提交
-- [ ] 创建 GitHub 仓库、推送 `main` 并检查页面渲染
+- [x] 创建 GitHub 仓库并推送 `main`
 - [ ] 可选：发布 LoRA 权重并补充模型链接
 
 ## 后续开发
