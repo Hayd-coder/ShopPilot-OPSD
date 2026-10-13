@@ -1,0 +1,52 @@
+{
+  "method": "OPSD",
+  "evaluation": {
+    "global_step": 10,
+    "task_count": 32,
+    "success_count": 30,
+    "success_rate": 0.9375,
+    "mean_task_score": 0.9375,
+    "mean_episode_length": 6.09375
+  },
+  "training_run": {
+    "planned_updates": 30,
+    "completed_updates": 18,
+    "stopped_early": true
+  },
+  "same_split_grpo_comparison": {
+    "grpo_success_rate": 0.9375,
+    "opsd_success_gain_count": 0,
+    "opsd_success_loss_count": 0,
+    "score_up_count": 0,
+    "score_down_count": 0,
+    "score_same_count": 32,
+    "identical_action_trajectories": 31
+  },
+  "paired_training_diagnostics_steps_1_18": {
+    "opsd": {
+      "mean_rollout_success_rate": 0.901167,
+      "mean_task_score": 0.930778,
+      "mean_nonzero_reward_group_fraction": 0.375,
+      "mean_reward_group_std": 1.447111,
+      "mean_actor_grad_norm": 0.032444,
+      "mean_seconds_per_update": 793.180889
+    },
+    "grpo": {
+      "mean_rollout_success_rate": 0.910611,
+      "mean_task_score": 0.940611,
+      "mean_nonzero_reward_group_fraction": 0.326389,
+      "mean_reward_group_std": 1.278056,
+      "mean_actor_grad_norm": 0.031,
+      "mean_seconds_per_update": 722.65
+    }
+  },
+  "distillation_diagnostics_steps_1_18": {
+    "mean_teacher_student_gap": -0.010833,
+    "mean_teacher_student_gap_std": 0.190611,
+    "mean_gate_active_ratio": 0.009778,
+    "steps_with_nonzero_gate": 4,
+    "mean_gate_value": 0.498667,
+    "mean_sdar_loss": -0.000222,
+    "steps_with_nonzero_sdar_loss": 2
+  }
+}

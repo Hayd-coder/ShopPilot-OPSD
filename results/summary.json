@@ -17,5 +17,34 @@
       {"global_step": 20, "success_count": 30, "success_rate": 0.9375, "mean_task_score": 0.9375, "valid_action_rate": 1.0, "mean_episode_length": 6.25},
       {"global_step": 30, "success_count": 30, "success_rate": 0.9375, "mean_task_score": 0.9375, "valid_action_rate": 1.0, "mean_episode_length": 6.09375}
     ]
+  },
+  "opsd_fixed32": {
+    "planned_updates": 30,
+    "completed_updates": 18,
+    "task_count": 32,
+    "checkpoint": {
+      "global_step": 10,
+      "success_count": 30,
+      "success_rate": 0.9375,
+      "mean_task_score": 0.9375,
+      "mean_episode_length": 6.09375
+    },
+    "same_split_grpo_comparison": {
+      "success_gain_count": 0,
+      "success_loss_count": 0,
+      "score_up_count": 0,
+      "score_down_count": 0,
+      "identical_action_trajectories": 31
+    },
+    "training_diagnostics_steps_1_18": {
+      "mean_rollout_success_rate": 0.901167,
+      "mean_task_score": 0.930778,
+      "mean_nonzero_reward_group_fraction": 0.375,
+      "mean_actor_grad_norm": 0.032444,
+      "mean_teacher_student_gap": -0.010833,
+      "mean_gate_active_ratio": 0.009778,
+      "steps_with_nonzero_gate": 4,
+      "mean_seconds_per_update": 793.180889
+    }
   }
 }
