@@ -1,0 +1,43 @@
+__pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.idea/
+.vscode/
+.env
+*.log
+*.out
+wandb/
+outputs/
+checkpoints/
+models/
+*.pt
+*.ckpt
+*.safetensors
+*.parquet
+agent_system/environments/env_package/webshop/webshop/data/items_*.json
+agent_system/environments/env_package/webshop/webshop/search_engine/indexes/
+agent_system/environments/env_package/webshop/webshop/search_engine/indexes_full/
+agent_system/environments/env_package/webshop/webshop/search_engine/resources/
+agent_system/environments/env_package/webshop/webshop/search_engine/resources_full/
+datasets/generated/
+!datasets/archives/*.tar.gz
+results/private/
+
+# Diagnostic split kept outside the public project narrative.
+results/logs/*unseen_asin*.log
+results/raw/*unseen_asin*/
+results/raw/*unseen_asin*.summary.json
+datasets/manifests/unseen_asin*
+scripts/evaluation/eval_unseen_asin128.sh
+scripts/evaluation/analyze_unseen_asin_eval.py
+scripts/expert_sft/build_unseen_asin_eval_split.py
+
+# This release targets WebShop only; other inherited environments are not part
+# of the runnable project package.
+agent_system/environments/env_package/alfworld/
+agent_system/environments/env_package/appworld/
+agent_system/environments/env_package/gym_cards/
+agent_system/environments/env_package/search/
+agent_system/environments/env_package/sokoban/
+

@@ -1,0 +1,31 @@
+{
+  "direct_source": "datasets/generated/self_expert_train4500.jsonl",
+  "hard_source": "datasets/generated/retrieval_hard1000.jsonl",
+  "output": "datasets/generated/retrieval_curriculum2500.jsonl",
+  "seed": 20261013,
+  "direct_trajectory_count": 1500,
+  "hard_trajectory_count": 1000,
+  "total_trajectory_count": 2500,
+  "direct_step_count": 8593,
+  "hard_step_count": 7744,
+  "total_step_count": 16337,
+  "hard_unique_asins": 183,
+  "hard_eval_asin_overlap": 0,
+  "hard_trajectory_modes": {
+    "compare_reject_then_purchase": 115,
+    "rewrite_then_purchase": 315,
+    "direct_purchase": 285,
+    "rewrite_compare_reject_then_purchase": 285
+  },
+  "hard_decision_types": {
+    "initial_over_specific_search": 600,
+    "reformulate_search": 600,
+    "refined_search": 600,
+    "inspect_candidate": 400,
+    "reject_candidate": 400,
+    "navigate_results": 642,
+    "select_candidate": 1000,
+    "normal": 3502
+  },
+  "output_sha256": "d3e68be53be09839150f387fece92b3635dbed21bc19def6ef86c94ea1d6d45c"
+}

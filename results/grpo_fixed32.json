@@ -1,0 +1,9 @@
+{
+  "source_log": "results/logs/webshop_qwen25_3b_retrieval_grpo_s30.log",
+  "task_count": 32,
+  "checkpoints": [
+    {"global_step": 10, "success_count": 30, "success_rate": 0.9375, "mean_task_score": 0.9375, "valid_action_rate": 1.0, "mean_episode_length": 6.09375},
+    {"global_step": 20, "success_count": 30, "success_rate": 0.9375, "mean_task_score": 0.9375, "valid_action_rate": 1.0, "mean_episode_length": 6.25},
+    {"global_step": 30, "success_count": 30, "success_rate": 0.9375, "mean_task_score": 0.9375, "valid_action_rate": 1.0, "mean_episode_length": 6.09375}
+  ]
+}

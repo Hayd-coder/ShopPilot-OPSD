@@ -1,0 +1,21 @@
+{
+  "project": "ShopPilot-RL",
+  "environment": "WebShop-small (1000 products)",
+  "evaluation_scope": "fixed tasks; target ASIN overlap with trajectory corpus is allowed",
+  "sft_fixed128": {
+    "task_count": 128,
+    "epochs": [
+      {"epoch": 1, "success_count": 112, "success_rate": 0.875, "mean_task_score": 0.9101630704365079, "valid_action_rate": 1.0, "mean_episode_length": 5.8046875, "consecutive_repeat_rate": 0.06504065040650407},
+      {"epoch": 2, "success_count": 111, "success_rate": 0.8671875, "mean_task_score": 0.9107204861111111, "valid_action_rate": 1.0, "mean_episode_length": 5.71875, "consecutive_repeat_rate": 0.046357615894039736},
+      {"epoch": 3, "success_count": 119, "success_rate": 0.9296875, "mean_task_score": 0.9462456597222222, "valid_action_rate": 1.0, "mean_episode_length": 5.734375, "consecutive_repeat_rate": 0.0462046204620462}
+    ]
+  },
+  "grpo_fixed32": {
+    "task_count": 32,
+    "checkpoints": [
+      {"global_step": 10, "success_count": 30, "success_rate": 0.9375, "mean_task_score": 0.9375, "valid_action_rate": 1.0, "mean_episode_length": 6.09375},
+      {"global_step": 20, "success_count": 30, "success_rate": 0.9375, "mean_task_score": 0.9375, "valid_action_rate": 1.0, "mean_episode_length": 6.25},
+      {"global_step": 30, "success_count": 30, "success_rate": 0.9375, "mean_task_score": 0.9375, "valid_action_rate": 1.0, "mean_episode_length": 6.09375}
+    ]
+  }
+}

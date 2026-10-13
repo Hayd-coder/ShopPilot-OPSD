@@ -1,0 +1,24 @@
+{
+  "input_trajectories": 5000,
+  "input_step_samples": 28625,
+  "train_trajectories": 4500,
+  "train_step_samples": 25815,
+  "validation_trajectories": 500,
+  "validation_step_samples": 2810,
+  "unused_trajectories": 0,
+  "unused_step_samples": 0,
+  "train_unique_asins": 336,
+  "validation_unique_asins": 141,
+  "train_validation_trajectory_overlap": 0,
+  "train_validation_asin_overlap": 118,
+  "allow_asin_overlap": true,
+  "train_mode_counts": {
+    "direct_purchase": 4500
+  },
+  "validation_mode_counts": {
+    "direct_purchase": 500
+  },
+  "seed": 42,
+  "train_output": "datasets/generated/self_expert_train4500.jsonl",
+  "validation_output": "datasets/generated/self_expert_validation500.jsonl"
+}

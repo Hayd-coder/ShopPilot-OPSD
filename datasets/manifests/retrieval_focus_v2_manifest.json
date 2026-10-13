@@ -1,0 +1,29 @@
+{
+  "source": "datasets/generated/retrieval_hard1000.jsonl",
+  "output": "datasets/generated/retrieval_focus_v2.jsonl",
+  "seed": 20261013,
+  "input_trajectories": 1000,
+  "eligible_trajectories": 845,
+  "selected_trajectories": 556,
+  "selected_step_samples": 4018,
+  "selected_unique_asins": 154,
+  "max_trajectories_per_asin": 20,
+  "direct_only_trajectories": 139,
+  "direct_only_fraction": 0.25,
+  "rewrite_trajectories": 319,
+  "rewrite_fraction": 0.5737410071942446,
+  "comparison_trajectories": 240,
+  "comparison_fraction": 0.4316546762589928,
+  "max_next_actions": 1,
+  "strict_eval_asin_overlap": 0,
+  "trajectory_modes": {
+    "compare_reject_then_purchase": 98,
+    "rewrite_compare_reject_then_purchase": 142,
+    "rewrite_then_purchase": 177,
+    "direct_purchase": 139
+  },
+  "rejected": {
+    "too_many_next_actions": 155
+  },
+  "output_sha256": "41bb47ad64dcffbb43d54de00f06ab0beded27d499e6f8774164caac344c9034"
+}
