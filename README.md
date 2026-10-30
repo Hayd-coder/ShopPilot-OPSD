@@ -189,13 +189,6 @@ tar -xzf datasets/archives/retrieval_curriculum_2500.tar.gz -C datasets/generate
 
 字段格式与构造原则见 [`docs/DATASET.md`](docs/DATASET.md)。
 
-## 已知边界
-
-- 当前实验使用 1,000 商品的 WebShop-small 环境，不能直接外推到开放互联网。
-- 固定任务主评测允许目标 ASIN 与训练轨迹重合，主要反映新指令下的操作与约束满足能力。
-- SFT 起点成功率较高，GRPO 的有效组间差异有限；后续可通过困难任务采样增强训练信号。
-- 模型权重未上传到 GitHub；仓库只保留代码、数据、配置、日志与评测证据。
-
 ## 许可证与第三方组件
 
 继承代码及第三方组件的版权与许可证说明见 [`LICENSE`](LICENSE)、[`Notice.txt`](Notice.txt) 和 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。
