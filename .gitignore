@@ -23,6 +23,7 @@ agent_system/environments/env_package/webshop/webshop/search_engine/resources_fu
 datasets/generated/
 !datasets/archives/*.tar.gz
 results/private/
+results/browser_harness/
 
 # Diagnostic split kept outside the public project narrative.
 results/logs/*unseen_asin*.log

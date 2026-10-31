@@ -14,6 +14,7 @@ ShopPilot-OPSD 面向 WebShop 长程网页交互任务，基于 **Qwen2.5-3B-Ins
 - 在固定 128 个 WebShop 任务上，三轮 SFT 成功率分别为 **87.50%、86.72%、92.97%**；最终达到 **119/128**，平均任务得分 **0.9462**，动作合法率 **100%**。
 - GRPO 采用 `B=8、G=8`，每次更新生成 64 条轨迹；阶段最高成功率由 SFT 的 **92.97%** 进一步达到约 **94%**，提升幅度有限，并通过奖励方差、优势值、梯度范数和失败轨迹定位性能瓶颈。
 - OPSD 在与 GRPO 相同的 128 个固定任务上取得 **93.75%** 成功率；进一步的门控诊断发现平均仅 **0.98%** 的 Response Token 激活蒸馏信号，说明当前瓶颈不是算法链路未接通，而是经验增强分支尚未形成足够强的正向教师优势。
+- 新增基于 **Playwright** 的 Browser Harness，将语义决策与浏览器执行解耦，支持动作合法性校验、429 退避、登录恢复、超时重试、购买确认、幂等保护和脱敏 JSONL Trace。
 
 
 
@@ -70,6 +71,56 @@ OPSD 不重新生成教师轨迹，而是在同一次 on-policy rollout 后，�
 ```
 
 带经验上下文的分支只提供监督信号，更新仍作用于原始策略分支，从而在保留 GRPO 轨迹级优化目标的同时，对关键搜索、点击和规格选择 Token 提供更细粒度的学习信号。
+
+### 5. Browser Harness 与真实网页异常
+
+Browser Harness 保留`search[...] / click[...]`动作协议，通过Playwright将Agent决策映射为真实Edge/Chromium中的DOM填写、点击和页面跳转。Agent负责搜索、比较和购买决策，Harness负责动作执行、页面感知、异常恢复与购买安全。
+
+```mermaid
+flowchart LR
+    A[用户任务] --> B[Agent Think + Action]
+    B --> C[动作解析与合法性校验]
+    C --> D[Playwright浏览器执行]
+    D --> E[DOM页面更新]
+    E --> F[Observation + 合法动作]
+    F --> B
+    C -.-> G[429退避 / 登录恢复 / 超时重试]
+    D -.-> H[购买确认 / 幂等保护]
+    E --> I[JSONL Trace与评测]
+```
+
+| 模块 | 功能 |
+|---|---|
+| DOM感知 | 提取用户任务、当前可见页面、规格状态与合法动作 |
+| 可靠性恢复 | 处理HTTP 429、Session过期和页面加载超时 |
+| 执行安全 | 购买显式确认、动作指纹、重复提交拦截 |
+| 轨迹证据 | 记录动作、页面、重试、异常、Reward与终止状态 |
+
+真实数据演示读取WebShop的1000商品快照，自动完成：
+
+```text
+搜索任务 → 429退避恢复 → 8候选商品 → 登录恢复 → 商品详情
+        → 超时恢复 → 选择目标规格 → 确认购买 → Reward=1.0
+```
+
+| 真实商品检索 | 目标规格选择 |
+|---|---|
+| ![真实8候选商品](docs/assets/browser_harness/01_search_results.png) | ![目标商品与规格](docs/assets/browser_harness/04_item.png) |
+
+| HTTP 429退避恢复 | 登录状态恢复 |
+|---|---|
+| ![HTTP 429](docs/assets/browser_harness/01_429_rate_limit.png) | ![登录状态过期](docs/assets/browser_harness/02_login_expired.png) |
+
+| 页面超时恢复 | 购买成功与奖励 |
+|---|---|
+| ![页面超时](docs/assets/browser_harness/03_timeout_recovery.png) | ![购买成功](docs/assets/browser_harness/05_done.png) |
+
+```powershell
+python -m pip install -r requirements-browser.txt
+python scripts/browser_harness/run_real_data_demo.py
+```
+
+运行说明、故障注入和Trace字段见[`docs/browser_harness.md`](docs/browser_harness.md)。
 
 ## 核心数据流
 
@@ -165,6 +216,7 @@ bash scripts/train/train_grpo.sh
 
 ```text
 agent_system/                 WebShop 环境、多轮交互、动作投影与轨迹采集
+browser_harness/              Playwright 浏览器执行、异常恢复、幂等保护与 Trace
 verl/                         GRPO 训练与分布式执行基础设施
 scripts/expert_sft/           专家轨迹生成、切分、审计与加权 LoRA SFT
 scripts/train/                SFT 与 GRPO 训练入口
