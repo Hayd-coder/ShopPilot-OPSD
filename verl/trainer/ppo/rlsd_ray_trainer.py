@@ -21,6 +21,7 @@ from verl.trainer.ppo.ray_trainer import (
     apply_kl_penalty,
     compute_advantage,
     compute_response_mask,
+    maybe_apply_redundant_step_policy_mask,
 )
 from verl.trainer.ppo.reward import compute_reward, compute_reward_async
 from verl.trainer.ppo.rlsd_utils import SkillProvider, compute_rlsd_token_advantage
@@ -356,6 +357,11 @@ class RLSDRayTrainer(RayPPOTrainer):
                         )
 
                         batch.batch["advantages"] = token_advantages
+                        batch, redundancy_metrics = maybe_apply_redundant_step_policy_mask(
+                            batch,
+                            self.config.algorithm,
+                        )
+                        metrics.update(redundancy_metrics)
 
                         # Log RLSD-specific metrics
                         delta_t = (teacher_log_probs - student_log_probs) * response_mask

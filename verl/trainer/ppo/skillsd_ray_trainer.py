@@ -29,6 +29,7 @@ from verl.trainer.ppo.ray_trainer import (
     apply_kl_penalty,
     compute_advantage,
     compute_response_mask,
+    maybe_apply_redundant_step_policy_mask,
 )
 from verl.trainer.ppo.reward import compute_reward, compute_reward_async
 from verl.trainer.ppo.rlsd_ray_trainer import RLSDRayTrainer
@@ -230,6 +231,11 @@ class SkillSDRayTrainer(RLSDRayTrainer):
                             gigpo_enable_similarity=self.config.algorithm.gigpo.enable_similarity,
                             gigpo_similarity_thresh=self.config.algorithm.gigpo.similarity_thresh,
                         )
+                        batch, redundancy_metrics = maybe_apply_redundant_step_policy_mask(
+                            batch,
+                            self.config.algorithm,
+                        )
+                        metrics.update(redundancy_metrics)
 
                         # ---- SkillSD: Do NOT replace advantages ----
                         # Advantages stay as standard GRPO sequence-level advantages.

@@ -255,6 +255,15 @@ algorithm:
     mode: "mean_norm" # "mean_norm" or "mean_std_norm"
     enable_similarity: False # whether to use similarity-based anchor state grouping in GiGPO (supported for text-only tasks)
     similarity_thresh: 0.95 # similarity threshold for GiGPO (0.0, 1.0)
+  redundant_step_mask:
+    enable: False
+    # 只阻止成功/高优势轨迹强化冗余步骤；负优势继续惩罚失败行为。
+    positive_advantage_only: True
+    # 页面文本不变不等于状态不变（例如颜色/尺码已被选中），默认关闭。
+    mask_no_state_change: False
+    mask_repeated_state_action: True
+    # 非法动作已有独立负奖励，默认不能Mask掉。
+    mask_invalid_action: False
   filter_groups: # DAPO from https://arxiv.org/abs/2503.14476
     enable: False
     max_num_gen_batches: 10

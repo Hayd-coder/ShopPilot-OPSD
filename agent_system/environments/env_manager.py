@@ -432,6 +432,16 @@ class WebshopEnvironmentManager(EnvironmentManagerBase):
             info['projected_action'] = actions[i]
             info['observation_before'] = previous_obs[i]
             info['observation_after'] = next_obs[i]
+            # 选择颜色、尺码后页面文本可能不变，因此额外保存浏览器会话状态，
+            # 避免信用分配把“同一页面”误判成“同一环境状态”。
+            info['selected_asin_before'] = previous_infos[i].get('selected_asin')
+            info['selected_options_before'] = dict(
+                previous_infos[i].get('selected_options') or {}
+            )
+            info['selected_asin_after'] = info.get('selected_asin')
+            info['selected_options_after'] = dict(
+                info.get('selected_options') or {}
+            )
             info['admissible_actions_before'] = '\n'.join(
                 self.format_avail_actions(previous_infos[i]['available_actions'])
             )

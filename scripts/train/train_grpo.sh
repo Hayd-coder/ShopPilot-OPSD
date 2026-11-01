@@ -8,6 +8,7 @@ CONDA_EXE="${CONDA_EXE:-/root/miniconda3/bin/conda}"
 RUN_ROOT="${RUN_ROOT:-/root/autodl-tmp/webshop-agent-runs}"
 MODEL_PATH="${MODEL_PATH:-${RUN_ROOT}/models/qwen25-3b-webshop-agent}"
 EXPERIMENT_NAME="${EXPERIMENT_NAME:-qwen25-3b-webshop-grpo-s30}"
+REDUNDANT_STEP_MASK_ENABLE="${REDUNDANT_STEP_MASK_ENABLE:-false}"
 
 source "$("${CONDA_EXE}" info --base)/etc/profile.d/conda.sh"
 conda activate "${ENV_PREFIX}"
@@ -52,6 +53,7 @@ python -m verl.trainer.main_ppo \
     actor_rollout_ref.ref.fsdp_config.param_offload=True \
     algorithm.use_kl_in_reward=False algorithm.compute_mean_std_cross_steps=True \
     algorithm.norm_adv_by_std_in_grpo=True \
+    algorithm.redundant_step_mask.enable="${REDUNDANT_STEP_MASK_ENABLE}" \
     env.env_name=Webshop env.seed=0 env.max_steps=15 env.rollout.n=8 \
     env.resources_per_worker.num_cpus=0.1 env.webshop.use_small=true \
     env.webshop.match_search_index_to_catalog=true env.webshop.fixed_goal_split=true \

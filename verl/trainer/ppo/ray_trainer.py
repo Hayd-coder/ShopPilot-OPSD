@@ -52,6 +52,10 @@ from verl.trainer.ppo.metric_utils import (
     process_validation_metrics,
 )
 from verl.trainer.ppo.reward import compute_reward, compute_reward_async
+from verl.trainer.ppo.redundant_step_mask import (
+    build_redundant_step_keep_mask,
+    mask_redundant_advantages,
+)
 from verl.utils.checkpoint.checkpoint_manager import find_latest_ckpt_path
 from verl.utils.metric import (
     reduce_metrics,
@@ -240,6 +244,90 @@ def compute_response_mask(data: DataProto):
     response_length = responses.size(1)
     attention_mask = data.batch["attention_mask"]
     return attention_mask[:, -response_length:]
+
+
+def apply_redundant_step_policy_mask(
+    data: DataProto,
+    *,
+    positive_advantage_only: bool = True,
+    mask_no_state_change: bool = False,
+    mask_repeated_state_action: bool = True,
+    mask_invalid_action: bool = False,
+):
+    """Mask明确冗余步骤的Policy Advantage，并返回诊断指标。"""
+
+    required_fields = (
+        "traj_uid",
+        "turn_step",
+        "projected_action",
+        "observation_before",
+        "observation_after",
+        "is_action_valid",
+    )
+    missing = [key for key in required_fields if key not in data.non_tensor_batch]
+    if missing:
+        raise KeyError(f"Redundant-step mask requires rollout fields: {missing}")
+
+    result = build_redundant_step_keep_mask(
+        traj_uids=data.non_tensor_batch["traj_uid"],
+        turn_steps=data.non_tensor_batch["turn_step"],
+        projected_actions=data.non_tensor_batch["projected_action"],
+        observations_before=data.non_tensor_batch["observation_before"],
+        observations_after=data.non_tensor_batch["observation_after"],
+        action_valids=data.non_tensor_batch["is_action_valid"],
+        selected_asins_before=data.non_tensor_batch.get("selected_asin_before"),
+        selected_options_before=data.non_tensor_batch.get("selected_options_before"),
+        selected_asins_after=data.non_tensor_batch.get("selected_asin_after"),
+        selected_options_after=data.non_tensor_batch.get("selected_options_after"),
+        mask_no_state_change=mask_no_state_change,
+        mask_repeated_state_action=mask_repeated_state_action,
+        mask_invalid_action=mask_invalid_action,
+    )
+
+    advantages_before = data.batch["advantages"]
+    advantages_after = mask_redundant_advantages(
+        advantages_before,
+        result.keep_mask,
+        positive_advantage_only=positive_advantage_only,
+    )
+    data.batch["advantages"] = advantages_after
+    data.non_tensor_batch["redundant_step_keep"] = result.keep_mask
+    data.non_tensor_batch["redundancy_reason"] = result.reasons
+
+    response_mask = data.batch["response_mask"].bool()
+    changed_tokens = ((advantages_before != advantages_after) & response_mask).sum().item()
+    positive_tokens = ((advantages_before > 0) & response_mask).sum().item()
+    redundant_steps = int((~result.keep_mask).sum())
+    total_steps = max(len(result.keep_mask), 1)
+    metrics = {
+        "credit_assignment/redundant_steps": float(redundant_steps),
+        "credit_assignment/redundant_step_fraction": redundant_steps / total_steps,
+        "credit_assignment/masked_positive_token_fraction": (
+            changed_tokens / max(positive_tokens, 1)
+        ),
+        "credit_assignment/no_state_change_steps": float(
+            np.count_nonzero(result.reasons == "no_state_change")
+        ),
+        "credit_assignment/repeated_state_action_steps": float(
+            np.count_nonzero(result.reasons == "repeated_state_action")
+        ),
+    }
+    return data, metrics
+
+
+def maybe_apply_redundant_step_policy_mask(data: DataProto, algorithm_config):
+    """根据Hydra配置选择性启用冗余步骤Mask。"""
+
+    config = algorithm_config.get("redundant_step_mask", {})
+    if not config.get("enable", False):
+        return data, {}
+    return apply_redundant_step_policy_mask(
+        data,
+        positive_advantage_only=config.get("positive_advantage_only", True),
+        mask_no_state_change=config.get("mask_no_state_change", False),
+        mask_repeated_state_action=config.get("mask_repeated_state_action", True),
+        mask_invalid_action=config.get("mask_invalid_action", False),
+    )
 
 
 def compute_advantage(data: DataProto, adv_estimator, gamma=1.0, lam=1.0, num_repeat=1, multi_turn=False, norm_adv_by_std_in_grpo=True, compute_mean_std_cross_steps=True, step_advantage_w=1.0, gigpo_mode="mean_std_norm", gigpo_enable_similarity=False, gigpo_similarity_thresh=0.95, **kwargs):
@@ -700,6 +788,8 @@ class RayPPOTrainer:
             "step_reward",
             "task_score",
             "tool_callings",
+            "redundant_step_keep",
+            "redundancy_reason",
         ):
             values = batch.non_tensor_batch.get(key)
             if values is not None:
@@ -1357,6 +1447,11 @@ class RayPPOTrainer:
                             gigpo_enable_similarity= self.config.algorithm.gigpo.enable_similarity,
                             gigpo_similarity_thresh=self.config.algorithm.gigpo.similarity_thresh,
                         )
+                        batch, redundancy_metrics = maybe_apply_redundant_step_policy_mask(
+                            batch,
+                            self.config.algorithm,
+                        )
+                        metrics.update(redundancy_metrics)
 
                     # update critic
                     if self.use_critic:
